@@ -90,11 +90,9 @@ const Footer: React.FC = () => {
             </a>
           )}
 
-          <a href="https://ghost.org" target="_blank" rel="noopener noreferrer">
-            Ghost
+          <a href="mailto:kim@seonghyeon.dev" target="_blank" rel="noopener noreferrer">
+            Contact Me
           </a>
-
-          <a href="/rss.xml">RSS</a>
         </SiteFooterNav>
       </div>
     </footer>

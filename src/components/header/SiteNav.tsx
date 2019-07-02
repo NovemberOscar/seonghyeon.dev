@@ -10,6 +10,7 @@ import Facebook from '../icons/facebook';
 import Twitter from '../icons/twitter';
 import SubscribeModal from '../subscribe/SubscribeOverlay';
 import SiteNavLogo from './SiteNavLogo';
+import Github from '../icons/github';
 
 const HomeNavRaise = css`
   @media (min-width: 900px) {
@@ -139,18 +140,14 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
       <nav css={[isHome && HomeNavRaise, SiteNavStyles]}>
         <SiteNavLeft>
           {!isHome && <SiteNavLogo />}
-          <ul css={NavStyles} role="menu">
-            {/* TODO: mark current nav item - add class nav-current */}
+          {/* <ul css={NavStyles} role="menu">
             <li role="menuitem">
               <Link to="/">Home</Link>
             </li>
             <li role="menuitem">
               <Link to="/about">About</Link>
             </li>
-            <li role="menuitem">
-              <Link to="/tags/getting-started/">Getting Started</Link>
-            </li>
-          </ul>
+          </ul> */}
         </SiteNavLeft>
         <SiteNavRight>
           <SocialLinks>
@@ -174,6 +171,17 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
                 rel="noopener noreferrer"
               >
                 <Twitter />
+              </a>
+            )}
+            {config.github && (
+              <a
+                css={SocialLink}
+                href={config.github}
+                title="GitHub"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github />
               </a>
             )}
           </SocialLinks>

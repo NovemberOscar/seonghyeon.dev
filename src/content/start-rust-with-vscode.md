@@ -1,0 +1,156 @@
+---
+layout: post
+title: 'Rust 시작하기 with VSCode'
+image: img/rust.jpg
+author: Seonghyeon Kim
+date: 2019-07-01T10:00:00.000Z
+tags:
+  - Rust
+draft: false
+---
+
+6월 29일에 열린 스프린트 서울에 RustPython이라는 재미있는 프로젝트가 있었다. 정작 스프린트에서 RustPython을 하지는 않았지만 보면서 Rust가 재밌어 보여 밑도 끝도 없이 갑자기 Rust를 하기 시작했다.
+
+Rust에 대해 간단히 소개를 해 보자면 Rust는 모질라에서 개발하고 있는, "쉽고 안전하게 병렬 프로그래밍을 할 수 있는 차세대 프로그래밍 언어" 라고 하며 주로 웹 어셈블리를 만드는데 주로 사용되는 것 같으며 Servo가 이것으로 제작되고 있다고 한다.
+
+항상 새로운 언어, 프레임워크를 시작하는데 있어서 가장 힘든것은 그 기술 그 자체보다는 빌드와 환경 구축이다.
+
+그래도 Rust는 최근에 나온 언어인 만큼 상당히 편리하게 설정이 가능했다. 자, 이제 Rust를 시작해 보자.
+
+# Rust 설치하기
+
+rust를 설치할 수 있는 방법은 크게 세가지가 있다. `apt-get`이나 `brew` 처럼 일반적인 패키지 매니저를 이용해 설치하기, rustup이라는 관리자 도구를 이용해 설치하기 마지막으로 소스코드에서 빌드하기가 있는데. 가장 권장되는 방법은 rustup을 이용해 설치하는 것이다.
+
+rustup은 간단하게 설치할 수 있다. 다음의 명령어를 커맨드라인에 붙여넣어 실행해서 안내를 따르면 된다.
+
+```sh
+$ curl https://sh.rustup.rs -sSf | sh
+```
+
+성공적으로 설치되었다면 추후에 설치할 VS code 확장을 위해 툴체인에 몇가지 컴포넌트를 추가하자.
+
+```sh
+$ rustup component add rls
+$ rustup component add rust-src
+$ rustup component add rust-analysis
+$ rustup component add rustfmt
+$ rustup component add rustsym
+$ rustup component add clippy
+```
+
+# 새 프로젝트 구성하기
+
+rust 프로젝트를 빌드하고, 패키지를 관리하기 위해서는 `cargo`라는 도구를 사용하게 된다. cargo를 사용하여 관리되는 프로젝트는 cargo가 코드를 빌드하고, 의존성을 추가하며, 추가된 의존성을 포함하여 빌드되면서 테스트도 수행한다.또한 대부분의 rust 프로젝트가 cargo를 사용하고 있다.
+
+cargo는 기본적으로 rustup을 설치하면서 같이 설치된다.
+
+이제 cargo를 사용하여 새 프로젝트를 시작해 보자. 자신이 프로젝트를 시작하고자 하는 위치에서 터미널에 다음을 입력하자.
+
+```sh
+$ cargo new hello_world --bin
+```
+
+cargo가 실행 가능한 hello_world 프로젝트를 동일한 디렉토리에 만들 것이다.
+cargo를 사용하는 프로젝트는 설정파일인 Cargo.toml 파일과 .gitignore 파일, 그리고 src폴더 안의 main.rs 파일과 함께 초기화된다.
+
+```sh
+$ cd hello_world
+$ cargo build
+$ cargo run
+```
+
+프로젝트로 이동한 후 cargo를 사용하여 프로젝트를 빌드하고, 실행해 보자.
+
+# Visual Studio Code 환경 설정
+
+## rust 확장 설치하기
+
+Rust 개발환경은 주로 VSCode를 사용하여 구성한다.
+
+VS code에는 다양한 익스텐션을 설치해 새로운 언어나 프레임워크에 대한 지원을 추가할 수 있는데 rust 익스텐션을 설치하면 이전에 설치한 rls(Rust Language Server)를 사용해 다음과 같은 기능을 제공한다.
+
+- 코드 자동완성
+- 정의 체크
+- 포맷팅
+- 리팩토링
+- 에러 포인팅
+- 빌드
+
+`cmd(ctrl) + p`를 눌러 커맨드 창을 열고, `ext install rust-lang.rust`를 실행해 rust 익스텐션(rust-lang.rust)을 설치하자.
+
+확장이 설치되었다면 이전에 만든 hello_world 프로젝트를 VSCode로 열어보자. 하단에서 RLS가 시작될 것이다.
+
+## task 설정
+
+VSCode에서 빌드와 테스트를 수행하기 위해서는 Task를 만들어야 한다. `cmd + shift + p`를 눌러 커맨드 창을 누르고 task 를 검색해 Task: Configure Task를 클릭해 tasks.json 파일을 만들자.
+
+tasks.json 파일에 다음에 내용을 붙여넣어 빌드와 테스트 작업을 설정하자.
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "cargo",
+      "subcommand": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$rustc"]
+    },
+    {
+      "label": "test",
+      "type": "cargo",
+      "subcommand": "test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": ["$rustc"]
+    }
+  ]
+}
+```
+
+이제 `cmd + shift + b`를 눌러 빌드할 수 있다.
+
+## launch 설정
+
+rust 프로그램을 디버그 하기 위해서는 lldb 확장을 설치해야 한다. `cmd + p`를 눌러 `ext install vadimcn.vscode-lldb`를 실행하여 lldb 확장을 설치하자.
+
+현재는 아마도 디버그 셋팅이 되어있지 않은 상태일 것이다. `F5` 버튼을 눌러 디버그를 시작하려 하면 디버그 설정을 선택하라고 할 것이다. `LLDB`를 선택하면 launch.json이 만들어질 것이다.
+
+launch.json의 내용을 다음으로 교체하여 디버그 셋팅을 완료하자.
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug",
+      "program": "${workspaceRoot}/target/debug/${workspaceFolderBasename}",
+      "args": [],
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "build",
+      "sourceLanguages": ["rust"],
+      "terminal": "integrated"
+    }
+  ]
+}
+```
+
+이 lldb 설정은 현재 프로젝트 이름으로 된 바이너리 파일을 찾아 디버그하는 설정으로써 stdio를 입력이 불가능한 Debug Console 대신 내장된 터미널에서 수행하도록 terminal 옵션을 integrated로 두었고, 소스 언어를 rust로 지정하여 편리한 디버깅이 되도록 했다.
+
+만약 외부 터미널에서 입출력을 하고 싶다면 terminal 옵션을 external로 변경하자.
+
+이제 `F5` 를 눌러 디버그를 할 수 있을 것이다.
+
+![Screen Shot 2019-07-01 at 1.46.04 PM.png](https://images.velog.io/post-images/novemberoscar/b4c495d0-9bbc-11e9-9908-f92a80456c38/Screen-Shot-2019-07-01-at-1.46.04-PM.png)
+
+# 마치며
+
+이 글에서는 rust로 개발하기 위한 기초적인 설정을 알아보았다. 앞으로 즐거운 rust 개발이 되기를 바란다 :)

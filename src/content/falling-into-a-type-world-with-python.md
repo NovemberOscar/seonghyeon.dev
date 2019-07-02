@@ -1,0 +1,370 @@
+---
+layout: post
+title: '🌏 Falling into a type world with Python'
+image: img/type-with-python.jpeg
+author: Seonghyeon Kim
+date: 2019-03-03T10:00:00.000Z
+tags:
+  - Python
+draft: false
+---
+
+# PEP 484에 대한 소개
+
+Python 3.5 버전에는 다음과 같은 형식으로 IDE와 코드 가독성에 도움을 줄 수 있도록 함수의 인자와 반환값에 대한 타입 힌트가 처음으로 도입 되었다.
+
+```python
+def greeting(name: str) -> str:
+    return 'Hello ' + name
+```
+
+그리고 후에 나온 3.6 버전에서는 인자와 반환값 만이 아니라 변수에도 타입 힌트 표기가 가능해졌다.
+
+```python
+def greeting(name: str) -> str:
+    s: str = 'Hello ' + name
+    return s
+```
+
+## 타입 힌트의 의의와 목표
+
+타입 힌트 기능은 타입 표시에 관한 표준 구문을 제공하고, 더 쉬운 정적 분석과 리팩토링 및 타입 정보를 추론하는 것에 대한 도움을 주기 위해 만들어졌다.
+
+예를 들어 예상하지 못한 타입이 변수에 할당될 때나 함수에 전달될 때 IDE나 정적 검사기는 쉽게 오류라고 판단할 수 있을것이다. 또한 다른 사람이나, 쉽게 잊어버릴것 같은 코드에 어떤 타입이 기대되는지 쉽게 알려줄 수 있다.
+
+타입 힌트는 적절한 도구와 함께 사용될 경우 정적 언어가 가지는 장점인 타입 시스템의 견고함을 동적 언어로써 조금이라도 따라잡을 수 있도록 도와줄 것이다.
+
+## 그러나 파이썬이 정적 타입을 지향하는 것은 아니다.
+
+타입 힌트 기능은 말 그대로 타입 "힌트" 기능일 뿐이다. 타입 힌트는 정적 검사기와 IDE를 사용하며 코드의 질을 높이기 위해 사용 될 수 있으나 결코 런타임에 영향을 끼치지 않는다. 정수형을 가질 변수에 문자열 타입을 힌트로 작성해 놓는다고 해서 파이썬은 아무런 문제가 있다고 생각하지 않을 것이다.
+
+사실 타입 힌트는 코드에 붙은 주석에 가깝다. 독스트링을 **doc**을 사용하여 가져올 수 있는 것 처럼 타입 힌트 정보 또한 **annotations**속성을 통하여 타입 힌트를 가져올 수 있다.
+
+# 타입 힌트를 표현하는 문법
+
+파이썬의 타입 힌트는 typing 모듈을 사용하여 작성할 수 있다.
+
+## 간단한 타입 표기
+
+먼저 함수 선언부에 관한 타입 힌트는 인수 뒤에 콜론을 붙여서 인수의 타입 힌트를 붙이고, 괄호 뒤 콜론 전에 "-> 타입" 을 붙이는 형식으로 반환값에 대한 타입 힌트를 지정할 수 있다.
+
+```python
+def make_post(title: str, author_id: int=0) -> str:
+    ...
+```
+
+변수의 타입은 함수 인자와 비슷한 형식으로 힌트를 붙일 수 있다.
+
+```python
+num: int = 34  # int type
+string: str = "Hello types!"  # str type
+test: Test = Test(num)  # class "Test" type
+```
+
+클래스 멤버 변수도 변수와 비슷하다.
+
+```python
+class A:
+    x: int  # int type
+    y: str  # str type
+    z: float  # float type
+
+    def __init__(self, x: int, y: str, z: float):
+        self.x = x
+        self.y = y
+        self.z = z
+```
+
+## 특별한 타입들
+
+타이핑 모듈에는 특별한 타입들 몇가지가 존재한다.
+그 중 Any와 NoReturn에 대해 소개한다.
+
+Any는 말 그대로 모든 타입을 허용한다.
+
+```python
+x: Any = 3  # 된다
+y: Any = "anyone"  # 된다
+```
+
+NoReturn은 리턴이 되는것이 아니라 예외를 발생시키는 등의 경우에 사용한다.
+
+```python
+from typing import NoReturn
+
+def stop() -> NoReturn:
+    raise RuntimeError('no way')
+```
+
+## 타입 별칭
+
+타입 별칭은 간단하다. 타입을 새 변수에 대입하면 그 변수는 타입 별칭으로써 기능한다. 다음은 간단한 예시이다.
+
+```python
+from typing import List
+
+url_ls = List[str]  # List with str type
+crawling_result = List[str]  # List with str type
+
+def crawler(urls: url_ls) -> crawling_result:
+    ...
+```
+
+물론 더욱 복잡한 타입 별칭도 만들 수 있다. 이 코드는 제네릭을 활용한 것으로 추후에 더 알아볼 것이다.
+
+```python
+from typing import TypeVar, Tuple, Iterable
+
+T = TypeVar('T', int, float)
+Vector = Iterable[Tuple[T, T]]
+
+def inproduct(v: Vector[T]) -> T:  # 벡터의 내적
+    return sum(x*y for x, y in v)
+```
+
+## 객체로써의 함수의 타입
+
+함수를 작성하다 보면 함수를 반환하는 함수 또는 함수를 함수를 작성하게 될 것이다. 또는 변수에 함수 객체를 할당할 수도 있다. 이러한 객체로써의 함수의 타입은 Callable을 사용하여 표현할 수 있다.
+
+```python
+from typing import Callable
+
+def callback_loader(callback: Callable[[float], int]) -> int:
+    # float을 인수로 받아 int 형을 반환하는 콜백을 인수로 받는다.
+    return callback(3.7)
+```
+
+```python
+from typing import Callable
+
+def closure(txt: str) -> Callable[[], str]:
+    # 아무 인수도 받지 않고 str 형을 반환하는 함수를 반환한다.
+    def inner_func() -> str:
+        return txt
+
+    return inner_func
+```
+
+```python
+from typing import Callable
+
+def func(txt: str) -> str:
+    return txt
+
+x: Callable[[str], str] = func  # 함수 객체를 할당
+```
+
+## 클래스 타입
+
+파이썬의 타입 힌트는 특정한 클래스라는 것 또한 명시할 수 있다.
+
+```python
+class A:
+    def print_all() -> None:
+        ...
+
+def print_class(cls_obj: A) -> None:
+    cls_obg.print_all()
+
+a = A()
+print_class(a)  # 정적 검사가 통과할 것이다.
+```
+
+그런데 만약 상속받은 하위 클래스도 받아들이려면 어떻게 해야 할까?
+
+```python
+class A:
+    def print_all() -> None:
+        ...
+
+class B(A):
+    ...
+
+def print_class(cls_obj: A) -> None:
+    cls_obg.print_all()
+
+b = B()
+print_class(b)  # 정적 검사기는 타입이 일치하지 않는다고 경고할 것이다.
+```
+
+이럴 때를 위해 Type[C] 문법이 준비되어 있다. (C는 클래스를 나타낸다) 그냥 C를 타입으로 사용하면 C의 인스턴스만을 받아들이지만 Type[C]을 사용하면 상위 클래스를 상속받은 모든 하위 클래스 또한 허용하게 된다.
+
+```python
+from typing import Type
+
+class A:
+    def print_all() -> None:
+        ...
+
+class B(A):
+    ...
+
+def print_class(cls_obj: Type[A]) -> None:
+    # A의 하위 클래스도 허용
+    cls_obg.print_all()
+
+b = B()
+print_class(b)  # 정적 검사가 통과할 것이다.
+```
+
+## 제네릭
+
+데이터 형식에 의존하지 않고 인자, 변수 또는 반환값 등이 여러 다른 데이터 타입들을 가질 수 있는 방식을 제네릭이라고 한다.
+
+파이썬의 타입 힌트 기능에서도 제네릭 표현이 가능하다.
+
+다음은 간단한 제네릭을 사용한 클래스의 선언과 사용의 예시이다.
+
+```python
+from typing import TypeVar, Generic, List
+
+T = TypeVar('T')
+
+class C(Generic[T]):
+    def __init__(self) -> None:
+        self.ls: List[T] = []
+        # T 타입의 리스트를 초기화한다
+
+    def put(item: T) -> None:
+        # T 타입을 인수로 받는다
+        self.ls.append(item)
+
+    def get(index: int) -> T:
+        # T 타입을 반환한다
+        return self.ls[index]
+
+c = C[str]()  # 타입은  str로 결정된다
+c.put("hello")  # 아무런 문제가 없다
+c.get(0)  # str 타입의 값을 반환할 것으로 기대된다.
+```
+
+함수에도 제네릭을 적용할 수 있다.
+
+```python
+from typing import TypeVar, Sequence
+
+T = TypeVar('T')
+
+def first(sqnce: Sequence[T]) -> T:
+    # 입력받은 시퀀스 객체의 타입에 따라 반환 타입도 결정된다.
+    return sqnce[0]
+```
+
+## 유니온
+
+제네릭과 달리 허용 가능한 타입의 범위가 정해져 있다면 Union을 사용할 수 있다.
+Union은 제한된 타입의 집합이다. Union이 타입 힌트로 사용된다면 해당 변수-인수-리턴값은 해당 Union에 속해있는 타입을 가질수 있다고 표현된다
+
+```python
+from typing import Union
+
+...
+
+def dispencer(select: int) -> Union[Coke, Soda]:
+    # Coke를 리턴할 수도 있고, Soda를 리턴할 수도 있다.
+    ...
+```
+
+## 오버로딩
+
+오버로딩이란 같은 함수 이름을 가지지만 인수가 다른 함수를 선언할 수 있는 방법을 말한다. 물론 파이썬은 오버로딩을 지원하지 않지만 typing 모듈의 @overload 데코레이터를 사용하여 오버로딩이 가능한 것**처럼** 보이게 할 수 있다.
+
+오버로드 데코레이터를 사용하기 위해서는 오버로드 데코레이터를 적용한 함수 원형을 만들고, 오버로드 데코레이터가 적용되지 않은 본체를 만들어야 한다.
+
+오버로드 데코레이터가 적용된 코드를 실행시켜 보면 데코레이터가 없는 본체만 실행된다.
+
+```python
+from typing import overload, Union
+
+class MyIter:
+
+    @overload
+    def __getitem__(self, i: int) -> int: ...
+
+    @overload
+    def __getitem__(self, s: slice) -> bytes: ...
+
+    def __getitem__(self, x: Union[int, slice]) -> Union[int, bytes]:
+        if isinstance(x, int):
+            pass
+        elif isinstance(x, slice):
+            pass
+```
+
+## 전방 참조
+
+현재(3.7 버전까지)의 타입 힌트 기능을 다음과 같은 코드를 사용할 수 없다. 힌트를 평가할 때 아직 정의되지 않은 타입을 사용할 수 없기 때문이다.
+
+```python
+class Node:
+    def __init__(self, right: Node, left: Node):
+        # 아직 Node의 정의가 끝나지 않아 오류가 발생한다.
+        self.right = right
+        self.left = left
+```
+
+이 문제에는 두가지의 해결 방안이 존재한다. 타입 정의를 나중에 확인할 수있는 문자열 리터럴로 처리하던가, `from __future__ import annotations` 구문(파이썬 3.7 만 해당)을 파일 맨 위에 삽입하여 타입 힌트에 대한 평가를 lazy 하게 함으로써 해결할 수 있다.
+
+```python
+class Node:
+    def __init__(self, right: 'Node', left: 'Node'):
+        self.right = right
+        self.left = left
+```
+
+```python
+from __future__ import annotations
+
+class Node:
+    def __init__(self, right: Node, left: Node):
+        self.right = right
+        self.left = left
+```
+
+## 제네레이터와 코루틴
+
+제네레이터 함수는 `Generator[yield_type, send_type, return_type]`의 형식으로 타입 힌트를 가질 수 있다.
+
+```python
+def echo_round() -> Generator[int, float, str]:
+    res = yield
+    while res:
+        res = yield round(res)
+    return 'OK'
+```
+
+그러나 비동기 함수(코루틴)은 조금 특별하다. 비동기 함수를 하나 선언해 보자.
+
+```python
+async def test():
+    return "Hello async!"
+```
+
+만약 이 함수가 무조건 await 된다면 이 함수의 결과는 str 타입을 가지게 될 것이지만 await 되지 않는다면 코루틴 자체를 반환하게 될 것이다.
+비동기 함수의 타입 힌트는 다음과 같이 사용하자.
+
+```python
+from typing import Corutine  # Generator와 사용법은 같다.
+
+async def test() -> Corutine[Any, Any, str]:
+    return "Hello async!"
+
+async def run():
+    res: Corutine[Any, Any, str] = test()
+    res_2: str = await test()
+```
+
+이를 용용해서 비동기 함수 객체를 표현할 수도 있다
+
+```python
+from typing import Corutine, Callable
+
+async def test() -> Corutine[Any, Any, str]:
+    return "Hello async!"
+
+x: Callable[[], Corutine[Any, Any, str]] = test
+```
+
+# 마치면서
+
+여기까지 파이썬의 타입 힌트에 대해 알아보았다. PEP 484에서 밝히듯 타입 힌트는 파이썬이 정적 언어로 쓰이기 위한 것도 아니고, 필수도 아니다. 그러나 적절한 도구와 같이 사용한다면 점점 커지는 코드를 만들어 가는 것을 도와줄 수 있을 것이다.
