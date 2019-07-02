@@ -89,6 +89,11 @@ const Footer: React.FC = () => {
               Twitter
             </a>
           )}
+          {config.github && (
+            <a href={config.github} target="_blank" rel="noopener noreferer">
+              GitHub
+            </a>
+          )}
 
           <a href="mailto:kim@seonghyeon.dev" target="_blank" rel="noopener noreferrer">
             Contact Me
