@@ -134,11 +134,27 @@ const IndexPage: React.FC<IndexProps> = props => {
             <SiteHeaderContent>
               <SiteTitle>
                 {props.data.logo ? (
-                  <img
-                    style={{ maxHeight: '100px' }}
-                    src={props.data.logo.childImageSharp.fixed.src}
-                    alt={config.title}
-                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="100%"
+                    height="100%"
+                    viewBox="0 0 14930 1299"
+                  >
+                    <text
+                      id="NOVEMBER_OSCAR"
+                      data-name="NOVEMBER/OSCAR"
+                      transform="translate(0 1039)"
+                      fill="#fff"
+                      font-size="1000"
+                      font-family="Futura-Medium, Futura"
+                      font-weight="500"
+                      letter-spacing="0.4em"
+                    >
+                      <tspan x="0" y="0">
+                        NOVEMBER/OSCAR
+                      </tspan>
+                    </text>
+                  </svg>
                 ) : (
                   config.title
                 )}

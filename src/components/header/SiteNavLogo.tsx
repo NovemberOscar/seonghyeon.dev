@@ -51,7 +51,22 @@ const SiteNavLogo = () => (
     render={(data: SiteNavLogoProps) => (
       <Link className="site-nav-logo" css={SiteNavLogoStyles} to="/">
         {data.logo ? (
-          <img src={data.logo.childImageSharp.fixed.src} alt={config.title} />
+          <svg xmlns="http://www.w3.org/2000/svg" width="240" height="21" viewBox="0 0 14930 1299">
+            <text
+              id="NOVEMBER_OSCAR"
+              data-name="NOVEMBER/OSCAR"
+              transform="translate(0 1039)"
+              fill="#fff"
+              font-size="1000"
+              font-family="Futura-Medium, Futura"
+              font-weight="500"
+              letter-spacing="0.4em"
+            >
+              <tspan x="0" y="0">
+                NOVEMBER/OSCAR
+              </tspan>
+            </text>
+          </svg>
         ) : (
           config.title
         )}

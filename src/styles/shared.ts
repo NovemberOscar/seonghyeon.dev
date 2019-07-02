@@ -26,6 +26,7 @@ export const SiteTitle = styled.h1`
   padding: 0;
   font-size: 3.8rem;
   font-weight: 700;
+  width: 60%;
 `;
 
 export const SiteDescription = styled.h2`
