@@ -26,6 +26,7 @@ import Helmet from 'react-helmet';
 import config from '../website-config';
 import Website from '../components/icons/website';
 import Twitter from '../components/icons/twitter';
+import Github from '../components/icons/github';
 
 const HiddenMobile = css`
   @media (max-width: 500px) {
@@ -96,6 +97,7 @@ interface AuthorTemplateProps {
       twitter?: string;
       facebook?: string;
       location?: string;
+      github?: string;
       // eslint-disable-next-line @typescript-eslint/camelcase
       profile_image?: {
         childImageSharp: {
@@ -115,13 +117,10 @@ interface AuthorTemplateProps {
 const Author: React.FC<AuthorTemplateProps> = props => {
   const author = props.data.authorYaml;
 
-  const edges = props.data.allMarkdownRemark.edges.filter(
-    edge => {
-      const isDraft = (edge.node.frontmatter.draft !== true ||
-        process.env.NODE_ENV === 'development');
-      return isDraft && edge.node.frontmatter.author && edge.node.frontmatter.author.id === author.id;
-    }
-  );
+  const edges = props.data.allMarkdownRemark.edges.filter(edge => {
+    const isDraft = edge.node.frontmatter.draft !== true || process.env.NODE_ENV === 'development';
+    return isDraft && edge.node.frontmatter.author && edge.node.frontmatter.author.id === author.id;
+  });
   const totalCount = edges.length;
 
   return (
@@ -160,9 +159,9 @@ const Author: React.FC<AuthorTemplateProps> = props => {
           css={[outer, SiteHeader]}
           style={{
             // eslint-disable-next-line @typescript-eslint/camelcase
-            backgroundImage: author.profile_image ?
-              `url(${author.profile_image.childImageSharp.fluid.src})` :
-              '',
+            backgroundImage: author.profile_image
+              ? `url(${author.profile_image.childImageSharp.fluid.src})`
+              : '',
           }}
         >
           <div css={inner}>
@@ -186,17 +185,17 @@ const Author: React.FC<AuthorTemplateProps> = props => {
                   {totalCount === 1 && '1 post'}
                   {totalCount === 0 && 'No posts'} <Bull>•</Bull>
                 </div>
-                {author.website && (
+                {author.github && (
                   <div>
                     <a
                       className="social-link-wb"
                       css={SocialLink}
-                      href={author.website}
-                      title="Website"
+                      href={`https://github.com/${author.github}`}
+                      title="GitHub"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Website />
+                      <Github />
                     </a>
                   </div>
                 )}
@@ -269,6 +268,7 @@ export const pageQuery = graphql`
       twitter
       bio
       facebook
+      github
       location
       profile_image {
         childImageSharp {
@@ -286,9 +286,9 @@ export const pageQuery = graphql`
       }
     }
     allMarkdownRemark(
-      filter: { frontmatter: { draft: { ne: true } } },
-      sort: { fields: [frontmatter___date], order: DESC },
-      limit: 2000,
+      filter: { frontmatter: { draft: { ne: true } } }
+      sort: { fields: [frontmatter___date], order: DESC }
+      limit: 2000
     ) {
       edges {
         node {

@@ -140,14 +140,14 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
       <nav css={[isHome && HomeNavRaise, SiteNavStyles]}>
         <SiteNavLeft>
           {!isHome && <SiteNavLogo />}
-          {/* <ul css={NavStyles} role="menu">
+          <ul css={NavStyles} role="menu">
             <li role="menuitem">
-              <Link to="/">Home</Link>
+              <Link to="/author/seonghyeon-kim">Author</Link>
             </li>
             <li role="menuitem">
-              <Link to="/about">About</Link>
+              <a href="https://zety.com/mycv/kimseonghyeon">Resume</a>
             </li>
-          </ul> */}
+          </ul>
         </SiteNavLeft>
         <SiteNavRight>
           <SocialLinks>
