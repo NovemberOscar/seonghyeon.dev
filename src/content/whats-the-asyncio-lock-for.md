@@ -1,6 +1,6 @@
 ---
 layout: post
-title: '왜 asyncio에 Lock이 필요할까?'
+title: '왜 asyncio에 뮤텍스 락이 필요할까?'
 image: img/mutex-mutex-everywhere.jpg
 author: Seonghyeon Kim
 date: 2019-09-14T10:00:00.000Z
@@ -11,7 +11,7 @@ draft: false
 
 > 이 글은 [what's Python asyncio.Lock() for?](https://stackoverflow.com/questions/25799576/whats-python-asyncio-lock-for) 라는 스택오버플로우 질문에 달린 [dano](https://stackoverflow.com/users/2073595/dano)라는 분의 답변을 기초로 하여 작성되었습니다.
 
-파이썬 asyncio 문서를 찾아보다 보면 `동기화 프리미티브` 라는 장이 존재한다. 이 장에는 asyncio가 동시성을 통제하기 위해 제공하는 여러가지 동기화 프리미티브(스레딩 모듈의 것과 상당히 유사하다)가 소개되어 있는데 그 중 당당히 적혀있는 `asyncio.Lock`이 보일 것이다.
+파이썬 asyncio 문서를 찾아보다 보면 [동기화 프리미티브](https://docs.python.org/ko/3/library/asyncio-sync.html) 라는 장이 존재한다. 이 장에는 asyncio가 동시성을 통제하기 위해 제공하는 여러가지 동기화 프리미티브(스레딩 모듈의 것과 상당히 유사하다)가 소개되어 있는데 그 중 당당히 적혀있는 `asyncio.Lock`이 보일 것이다.
 
 그리고 설명에는 다음과 같이 적혀있다.
 
@@ -122,7 +122,7 @@ aiohttp는 내부적으로 스레드풀을 쓰는데 컴퓨터가 동시에 돌�
 
 ## TL; DR, show me the code.
 
-### without lock
+without lock
 
 ```python
 import aiohttp
@@ -154,7 +154,7 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(asyncio.gather(*tasks))
 ```
 
-### with lock
+with lock
 
 ```python
 import aiohttp
