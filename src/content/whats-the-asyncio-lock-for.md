@@ -31,7 +31,7 @@ asyncio는 기본적으로 싱글스레드로 돌아가지만 우리가 `await` 
 async def request():
     global cache
 
-    url = "http://slowwly.robertomurray.co.uk/delay/4600/url/http://www.google.co.uk"
+    url = "http://slowwly.robertomurray.co.uk/delay/4600/url/http://example.com"
 
     if url in cache:
         return cache[url]
@@ -103,7 +103,7 @@ aiohttp는 내부적으로 스레드풀을 쓰는데 컴퓨터가 동시에 돌�
 ![](img/more-request-without-lock.png)
 ![](img/more-request-without-lock-2.png)
 
-실행되는 스레드는 **30개**를 넘고 aiohttp가 만든 태스크로 인해 스크롤을 내려야만 다 확인할 수 있으며 실행시간은 약 두배인 **13.4초**정도가 걸렸다.
+실행되는 스레드는 **30개**를 넘고 aiohttp가 만든 태스크로 인해 스크롤을 내려야만 다 확인할 수 있으며 실행시간은 약 두배인 **13.4초**정도가 걸렸다. (여러번 실행해 봤는데 가끔은 15초를 넘어갈 때도 있었다.)
 
 락을 건 코드는 어떨까?
 
@@ -135,7 +135,7 @@ lock = asyncio.Lock()
 
 async def request():
     global cache, lock
-    url = "http://slowwly.robertomurray.co.uk/delay/4600/url/http://www.google.co.uk"
+    url = "http://slowwly.robertomurray.co.uk/delay/4600/url/http://example.com"
 
     if url in cache:
         return cache[url]
