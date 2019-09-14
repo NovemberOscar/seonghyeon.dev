@@ -147,6 +147,9 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
             <li role="menuitem">
               <a href="https://www.pycon.kr/program/talk-detail?id=6">PyCon KR 2019</a>
             </li>
+            <li role="menuitem">
+              <a href="https://keybase.io/mmtnovemberoscar/pgp_keys.asc">PGP PUBLIC KEY</a>
+            </li>
           </ul>
         </SiteNavLeft>
         <SiteNavRight>
@@ -174,15 +177,6 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
               </a>
             )}
           </SocialLinks>
-          <a
-            css={SubscribeButton}
-            href="https://keybase.io/mmtnovemberoscar/pgp_keys.asc"
-            target="_blank"
-            rel="noopener noreferrer"
-            download="pgp_keys.asc"
-          >
-            <SubscribeButton>Get Public Key</SubscribeButton>
-          </a>
         </SiteNavRight>
       </nav>
     );
