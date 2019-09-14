@@ -6,9 +6,6 @@ author: Seonghyeon Kim
 date: 2019-09-14T10:00:00.000Z
 tags:
   - Python
-  - asyncio
-  - concurrency
-  - mutex
 draft: false
 ---
 

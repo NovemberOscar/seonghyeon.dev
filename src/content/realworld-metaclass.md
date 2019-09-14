@@ -6,8 +6,6 @@ author: Seonghyeon Kim
 date: 2019-08-16T10:00:00.000Z
 tags:
   - Python
-  - metaclass
-  - pycon
 draft: false
 ---
 

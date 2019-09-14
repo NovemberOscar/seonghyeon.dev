@@ -6,8 +6,6 @@ author: Seonghyeon Kim
 date: 2019-03-03T10:00:00.000Z
 tags:
   - Python
-  - type
-  - module
 draft: false
 ---
 

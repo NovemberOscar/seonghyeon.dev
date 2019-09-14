@@ -6,8 +6,6 @@ author: Seonghyeon Kim
 date: 2019-03-02T10:00:00.000Z
 tags:
   - DevOps
-  - setup
-  - hashicorp
 draft: false
 ---
 

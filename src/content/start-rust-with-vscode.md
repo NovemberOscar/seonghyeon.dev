@@ -6,8 +6,6 @@ author: Seonghyeon Kim
 date: 2019-07-01T10:00:00.000Z
 tags:
   - Rust
-  - vscode
-  - setup
 draft: false
 ---
 
