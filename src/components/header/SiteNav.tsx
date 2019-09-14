@@ -142,26 +142,15 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
           {!isHome && <SiteNavLogo />}
           <ul css={NavStyles} role="menu">
             <li role="menuitem">
-              <Link to="/author/seonghyeon-kim">Author</Link>
+              <a href="/about">About</a>
             </li>
             <li role="menuitem">
-              <a href="https://zety.com/mycv/kimseonghyeon">Resume</a>
+              <a href="https://www.pycon.kr/program/talk-detail?id=6">PyCon KR 2019</a>
             </li>
           </ul>
         </SiteNavLeft>
         <SiteNavRight>
           <SocialLinks>
-            {config.facebook && (
-              <a
-                css={SocialLink}
-                href={config.facebook}
-                target="_blank"
-                title="Facebook"
-                rel="noopener noreferrer"
-              >
-                <Facebook />
-              </a>
-            )}
             {config.twitter && (
               <a
                 css={SocialLink}
@@ -185,10 +174,15 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
               </a>
             )}
           </SocialLinks>
-          {config.showSubscribe && (
-            <SubscribeButton onClick={this.openModal}>Subscribe</SubscribeButton>
-          )}
-          {config.showSubscribe && <SubscribeModal ref={this.subscribe} />}
+          <a
+            css={SubscribeButton}
+            href="https://keybase.io/mmtnovemberoscar/pgp_keys.asc"
+            target="_blank"
+            rel="noopener noreferrer"
+            download="pgp_keys.asc"
+          >
+            <SubscribeButton>Get Public Key</SubscribeButton>
+          </a>
         </SiteNavRight>
       </nav>
     );
