@@ -580,8 +580,7 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
 모델을 가져와서 필드를 추출하고, Meta에 정의된 필드 중 이상한 값은 없는지 체크하는 등등의 작업을 한 후 필드들을 폼 클래스에 등록합니다.
 
 ## 슬라이드
-
-<iframe src="https://slides.com/seonghyeonkim/pyconkr-realworld-metaclass/embed" scrolling="no" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<iframe src="https://slides.com/seonghyeonkim/pyconkr-realworld-metaclass/embed" width="576" height="420" scrolling="no" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
 [^1]: https://docs.python.org/ko/3/reference/datamodel.html#objects-values-and-types
 [^2]: https://docs.python.org/ko/3/tutorial/classes.html#classes
