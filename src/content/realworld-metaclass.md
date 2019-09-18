@@ -11,9 +11,9 @@ tags:
 draft: false
 ---
 
-<iframe src="https://slides.com/seonghyeonkim/pyconkr-realworld-metaclass/embed" width="576" height="420" scrolling="no" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+> 이 글은 파이콘 한국 2019에서 파이썬 메타클래스에 대해 발표한 [리얼월드 메타클래스](https://www.pycon.kr/program/talk-detail?id=6)라는 발표의 텍스트 버전입니다. 슬라이드는 맨 아래에서 보실 수 있으며 영상은 추후 파이콘 유튜브에 공개될 예정입니다. 
 
-이 글에서는 메타클래스가 무엇인지 알아보고, 파이썬에선 구체적으로 무슨 역할을 하고, 어떻게 활용할 수 있으며, 이미 어떻게 활용되고 있는지 알아볼 것입니다.
+이 글에서 파이썬의 핵심적인 부분이지만 잘 모르고, 심오하게만 느껴지는 파이썬 메타클래스를 객체와 타입의 정의를 찾아가며 메타클래스에 대한 개념을 확립하고 파이썬의 클래스 생성 과정에서 메타클래스가 어떻게 사용되는지 알아본 후, 메타클래스를 유용하게 사용할 수 있는 몇가지 방법과 Celery, Django에서 메타클래스가 어떻게 사용되는지 알아봅니다. 
 
 ## PART A: 메타클래스란 무엇인가
 
@@ -578,6 +578,10 @@ class ModelFormMetaclass(DeclarativeFieldsMetaclass):
 ```
 
 모델을 가져와서 필드를 추출하고, Meta에 정의된 필드 중 이상한 값은 없는지 체크하는 등등의 작업을 한 후 필드들을 폼 클래스에 등록합니다.
+
+## 슬라이드
+
+<iframe src="https://slides.com/seonghyeonkim/pyconkr-realworld-metaclass/embed" scrolling="no" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
 [^1]: https://docs.python.org/ko/3/reference/datamodel.html#objects-values-and-types
 [^2]: https://docs.python.org/ko/3/tutorial/classes.html#classes
