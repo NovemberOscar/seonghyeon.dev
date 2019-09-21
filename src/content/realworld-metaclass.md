@@ -1,6 +1,6 @@
 ---
 layout: post
-title: '[파이콘 한국 2019] 리얼월드 메타클래스'
+title: '리얼월드 파이썬 메타클래스'
 image: img/realworld-metaclass.jpeg
 author: Seonghyeon Kim
 date: 2019-08-16T10:00:00.000Z
