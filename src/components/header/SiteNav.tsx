@@ -150,6 +150,9 @@ class SiteNav extends React.Component<SiteNavProps, SiteNaveState> {
             <li role="menuitem">
               <a href="https://keybase.io/mmtnovemberoscar/pgp_keys.asc">PGP PUBLIC KEY</a>
             </li>
+            <li role="menuitem">
+              <a href="https://wiki.seonghyeon.dev">wiki</a>
+            </li>
           </ul>
         </SiteNavLeft>
         <SiteNavRight>
