@@ -6,7 +6,7 @@ module.exports = {
     description: `Seonghyeon Kim's blog`,
     hero: {
       // heading: `<p style="font-size: 20px;color: #7A8085;">~/seonghyeon.dev</p><div style="display: inline-flex;">><input style="border: none; background: transparent;" placeholder="_"></input></div>`,
-      heading: `<a href="https://github.com/NovemberOscar"> <img id="github-heatmap" src="https://ghchart.rshah.org/NovemberOscar" alt="GitHub contribution heatmap"> </a>`,
+      heading: `<a href="https://github.com/NovemberOscar"> <img id="github-heatmap" src="https://ghchart.rshah.org/NovemberOscar" alt="GitHub contribution heatmap" style="width: 100%"> </a>`,
       maxWidth: 600,
     },
     social: [
