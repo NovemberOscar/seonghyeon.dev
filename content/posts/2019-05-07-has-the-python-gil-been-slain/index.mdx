@@ -1,0 +1,256 @@
+---
+title: '파이썬 GIL은 사라질까? (Has the Python GIL been slain?)'
+slug: has-the-python-gil-been-slain
+author: Seonghyeon Kim
+date: 2019-05-07
+hero: ./images/gil-dead.jpg
+excerpt: 파이썬의 새로운 기능인 서브인터프리터에 대해 소개하는 Anthony Shaw의 Has the Python GIL been slain? 을 번역한 글입니다.
+---
+
+
+이 글은 원작자의 허락 하에 Anthony Shaw의 [Has the Python GIL been slain?](https://hackernoon.com/has-the-python-gil-been-slain-9440d28fa93d) 을 번역한 글입니다. 약간의 의역이 있으며 오역, 오타, 어색한 번역이 있다면 알려주세요 :)
+
+2003년 초, 인텔은 "하이퍼스레딩" 기술을 포함한 3GHz 클럭의 새 Pentium 4 "HT" 프로세서를 출시했습니다.
+
+몇년동안 Intel과 AMD는 버스 속도와 L2캐시 사이즈를 증가시키고 지연을 최소화 하기 위하여 다이 사이즈를 줄이는 등 최고의 데스크톱 성능을 달성하기 위하여 경쟁했고, 3GHz HT 프로세서는 2004년에 4GHz의 클럭으로 작동하는 "프레스캇" 모델 580 으로 대체되었습니다.
+
+https://www.youtube.com/embed/AmwzUrL3vMc
+
+더 높은 성능을 달성하기 위해선 클럭을 높이기만 하면 되는 것 같았으나 클럭이 올라갈 수록 CPU는 많은 전력 소모와 발열에 시달렸습니다.
+
+그러나 예상 밖으로 성능을 올리는 방법은 버스 속도를 증가시키고 코어를 추가하는 것 이였기 때문에 Intel 코어 2 프로세서는 펜티엄 4보다 낮은 클럭 속도를 가지고도 펜티엄 4 프로세서를 대체했습니다.
+
+2006년은 소비자용 멀티코어 프로세서가 출시된 것 이외에도 파이썬 2.5가 출시된 해이기도 합니다. 파이썬 2.5는 with 문의 베타 버전이 포함되어 있었습니다.
+
+파이썬 2.5는 Intel 코어 2와 AMD 애슬론 X2에 대한 한가지 큰 제약을 포함하게 되었습니다.
+
+> 그것은 바로 _GIL_ 입니다.
+
+# GIL?
+
+GIL(Global Interpreter Lock)은 파이썬 인터프리터에서 뮤텍스로 보호되는 부울 값압니다. 이 락은 CPython의 코어 바이트코드 평가 루프가 어떤 스레드가 현재 실행되고 있는지를 설정하기 위해 사용합니다.
+
+CPython은 하나의 인터프리터에서 여러개의 스레드를 실행하는 것을 지원하지만 스레드가 OP 코드를 실행하기 위해선 GIL에 대한 접근을 요청해야 합니다. 즉, 다시 말하자면 파이썬 개발자는 비동기 코드와 멀티스레드 코드를 사용할 때 변수에 대해 락을 걸거나 데드락이 걸려 프로세스가 충돌하는 것을 걱정할 필요가 없다는 것입니다.
+
+GIL은 멀티스레드 프로그래밍을 간단하게 합니다.
+
+하지만 GIL은 CPython이 멀티스레드일 수 있지만 동시에 오직 한 스레드만이 실행될 수 있다는 것을 뜻하기도 합니다. 즉, 쿼드코어 CPU가 이렇게 돌아가고 있을 수도 있습니다. (블루스크린은 제외하고)
+
+![](https://cdn-images-1.medium.com/max/1200/0*IwiGd5KgPdcm8Ui1)
+
+현재 버전의 GIL은 비동기 지원을 추가하기 위하여 [2009년에](https://github.com/python/cpython/commit/074e5ed974be65fbcfe75a4c0529dbc53f13446f) 작성되었으며 GIL을 삭제하거나 요구사항을 줄이기 위한 많은 시도에도 불구하고 비교적 변경되지 않은 상태로 존재하고 있습니다.
+
+GIL을 제거하기 위한 모든 제안에 요구되는 사항은 싱글 스레드 코드의 성능을 떨어트리지 말아야 한다는 것 입니다. 2003년에 하이퍼스레딩을 활성화 해 본 사람이라면 이것이 [왜 중요한지 알 것입니다.](https://arstechnica.com/features/2002/10/hyperthreading/)
+
+# CPython에서 GIL 피하기
+
+CPython에서 진정한 병렬 코드를 원한다면 멀티프로세스를 사용해야 합니다.
+
+CPython 2.6에서 멀티프로세싱 모듈이 표준 라이브러리에 추가되었습니다. 멀티프로세싱 모듈은 각자의 GIL을 가지고 있는 CPython 프로세스의 스폰에 대한 래퍼였습니다.
+
+```python
+from multiprocessing import Process
+
+def f(name):
+    print 'hello', name
+
+if __name__ == '__main__':
+    p = Process(target=f, args=('bob',))
+    p.start()
+    p.join()
+```
+
+멀티프로세싱은 큐 또는 파이프를 통하여 변수를 공유할 수도 있으며 다른 프로세스에서 쓰기 위해 마스터 프로세스의 객체를 잠그는 락 객체 또한 가지고 있습니다.
+
+멀티프로세싱은 중요한 한가지 결함이 있습니다. 멀티프로세싱은 메모리 사용량과 시간에 대해 상당한 오버헤드를 가지고 있습니다. CPython의 시작에 걸리는 시간은 [site](https://docs.python.org/ko/3/library/site.html?highlight=site#module-site)를 제외하고도 100~200ms 가량이 소요됩니다. ([이 글](https://hackernoon.com/which-is-the-fastest-version-of-python-2ae7c61a6b2b)을 참고하십시오)
+
+여러분은 CPython에서 병렬 코드를 사용할 수 있지만 객체를 거의 공유하지 않는 장기 실행 프로세스들에 적용할 수 있도록 신중하게 계획해야 합니다.
+
+다른 대안은 Twisted 같은 서드파티 라이브러리를 사용하는 것입니다.
+
+# PEP554와 GIL의 죽음?
+
+다시 정리해 보자면 CPython에서 멀티스레딩은 쉽지만 진짜로 동시적으로 실행되는 것은 아니며 멀티프로세싱은 동시에 실행되지만 상당한 오버헤드를 가지고 있습니다.
+
+> 만약 더 좋은 방법이 있다면 어떨까요?
+
+GIL을 회피하는 방법에 대한 단서는 GIL의 이름에 숨겨져 있습니다. GIL, Global **Interpreter** Lock은 글로벌 인터프리터 상태의 일부입니다. CPython 프로세스는 여러개의 인터프리터를 가질 수 있기 때문에 여러개의 락이 가능하지만 이 기능은 C API를 통해서만 노출되기 때문에 거의 사용되지 않습니다.
+
+CPython 3.8에 제안된 기능 중 하나는 하위 인터프리터 구현과 표준 라이브러리의 새 `interpreters`모듈 API에 대한 [PEP554](https://www.python.org/dev/peps/pep-0554/)입니다.
+
+이는 단일 프로세스 내에서 파이썬으로부터 여러개의 인터프리터를 만들어 낼 수 있게 합니다. 파이썬 3.8의 또 다른 각 인터프리터가 별개의 GIL을 가지게 된다는 것입니다.
+
+![](https://cdn-images-1.medium.com/max/1600/1*-reIKC7OGp0Kxh5Y2jWPNQ.png)
+
+인터프리터 상태는 모든 파이썬 객체(지역과 전역 모두)의 포인터의 모음인 메모리 할당 영역을 가지고 있기 때문에 PEP554의 하위 인터프리터는 다른 인터프리터의 전역 변수에 접근할 수 없습니다.
+
+멀티프로세싱과 마찬가지로 인터프리터 간에 객체를 공유하는 방법은 객체를 직렬화하고 IPC의 형태를 사용하는 것입니다. 파이썬에는 객체를 직렬화하기 위한 다양한 방법이 있다. `marshal`이나 `pickle` 그리고 좀 더 표준적인 `json`이나 `simplexml`도 있습니다. 각각의 방법은 장단점이 있고 **모두가 오버헤드를 가지고 있습니다.**
+
+가장 좋은 방법은 소유하는 프로세스에 의해 컨트롤되는 변경 가능한 공유 메모리 공간을 가지는 것입니다. 이런 방식에선 마스터 인터프리터에서 객체를 보낼수 있고 다른 인터프리터에서 객체를 받을 수도 있습니다. 이것은 메인 프로세스가 락을 제어하면서 각 인터프리터가 접근할 수 있는 PyObject 포인터의 조회 관리 메모리 공간 (lookup managed-memory space of PyObject pointers) 이 될 것입니다.
+
+![](https://cdn-images-1.medium.com/max/1600/1*KuSl_WZkxRCQZUzAoSF2jg.png)
+
+이를 위한 API는 작업중이지만 다음과 비슷할 것입니다.
+
+```python
+import _xxsubinterpreters as interpreters
+import threading
+import textwrap as tw
+import marshal
+
+# Create a sub-interpreter
+interpid = interpreters.create()
+
+# If you had a function that generated some data
+arry = list(range(0,100))
+
+# Create a channel
+channel_id = interpreters.channel_create()
+
+# Pre-populate the interpreter with a module
+interpreters.run_string(interpid, "import marshal; import _xxsubinterpreters as interpreters")
+
+# Define a
+def run(interpid, channel_id):
+    interpreters.run_string(interpid,
+                            tw.dedent("""
+        arry_raw = interpreters.channel_recv(channel_id)
+        arry = marshal.loads(arry_raw)
+        result = [1,2,3,4,5] # where you would do some calculating
+        result_raw = marshal.dumps(result)
+        interpreters.channel_send(channel_id, result_raw)
+        """),
+               shared=dict(
+                   channel_id=channel_id
+               ),
+               )
+
+inp = marshal.dumps(arry)
+interpreters.channel_send(channel_id, inp)
+
+# Run inside a thread
+t = threading.Thread(target=run, args=(interpid, channel_id))
+t.start()
+
+# Sub interpreter will process. Feel free to do anything else now.
+output = interpreters.channel_recv(channel_id)
+interpreters.channel_release(channel_id)
+output_arry = marshal.loads(output)
+
+print(output_arry)
+```
+
+_[gist link](https://gist.github.com/tonybaloney/3df82ea8857ac28deb6e46d5c02842e0#file-master-py)_
+
+`marshal` 모듈을 사용하여 numpy 배열을 직렬화 하여 채널을 통해 보내면 하위 인터프리터는 개별 GIL 위에서 데이터를 처리함으로써 이것이 하위 인터프리터에 완벽한 CPU 바운드 동시성 문제가 되도록 합니다.
+
+## 비효율적인것 같습니다.
+
+`marshal` 모듈은 상당히 빠르지만 메모리에서 직접 객체를 공유하는 것만큼 빠르지는 않습니다.
+
+[PEP574](https://www.python.org/dev/peps/pep-0574/)는 메모리 버퍼가 나머지 피클 스트림과 별도로 처리될 수 있도록 지원하는 새 Pickle v5 를 제안했습니다. 대용량 데이터 객체의 경우 한번에 모두 직렬화 하고 하위 인터프리터에서 역직렬화하게 되면 오버헤드가 늘어나게 됩니다.
+
+새 API는 다음과 같이 표현될 것입니다. (이는 예상이며 아직 병합되지 않았습니다.)
+
+```python
+import _xxsubinterpreters as interpreters
+import threading
+import textwrap as tw
+import pickle
+
+# Create a sub-interpreter
+interpid = interpreters.create()
+
+# If you had a function that generated a numpy array
+arry = [5,4,3,2,1]
+
+# Create a channel
+channel_id = interpreters.channel_create()
+
+# Pre-populate the interpreter with a module
+interpreters.run_string(interpid, "import pickle; import _xxsubinterpreters as interpreters")
+
+buffers=[]
+
+# Define a
+def run(interpid, channel_id):
+    interpreters.run_string(interpid,
+                            tw.dedent("""
+        arry_raw = interpreters.channel_recv(channel_id)
+        arry = pickle.loads(arry_raw)
+        print(f"Got: {arry}")
+        result = arry[::-1]
+        result_raw = pickle.dumps(result, protocol=5)
+        interpreters.channel_send(channel_id, result_raw)
+        """),
+                            shared=dict(
+                                channel_id=channel_id,
+                            ),
+                            )
+
+input = pickle.dumps(arry, protocol=5, buffer_callback=buffers.append)
+interpreters.channel_send(channel_id, input)
+
+# Run inside a thread
+t = threading.Thread(target=run, args=(interpid, channel_id))
+t.start()
+
+# Sub interpreter will process. Feel free to do anything else now.
+output = interpreters.channel_recv(channel_id)
+interpreters.channel_release(channel_id)
+output_arry = pickle.loads(output)
+
+print(f"Got back: {output_arry}")
+```
+
+이 예제는 저수준 하위 인터프리터 API를 사용하고 있습니다. 만약 멀티프로세싱 라이브러리를 사용해 봤다면 문제점을 찾았을 것입니다. API가 `threading` 만큼 단순하지 않습니다. 아직은 이 입력 리스트을 별도의 인터프리터들에서 함수를 실행한다고 말하기에는 힘듭니다.
+
+이 PEP가 병합되면 PyPi의 다른 API에도 이것들이 적용될 것이라고 기대하고 있습니다.
+
+# 하위 인터프리터는 어느 정도의 오버헤드를 가지고 있을까?
+
+간단히 말하자면 스레드보다는 많지만 프로세스보다는 적습니다.
+
+인터프리터는 각자 자신만의 상태를 가지고 있습니다. 따라서 PEP554는 하위 인터프리터를 쉽게 만들 수 있지만 다음과 같은 것들을 복제하고 초기화 해야 합니다.
+
+- \_\_main\_\_ 네임스페이스와 importlib안에 있는 모듈들
+- sys 딕셔너리 포함
+- assert 와 print 같은 내장 함수
+- 스레드
+- 코어 구성
+
+코어 구성은 메모리에서 쉽게 복제할 수 있지만 임포트된 모듈은 간단하지 않습니다. 파이썬에서 모듈을 임포트는 느립니다. 따라서 만약 하위 인터프리터를 만드는 것이 매번 모듈을 다른 네임스페이스로 가져오는 것을 의미한다면, 오버헤드가 적다는 이점은 줄어들게 됩니다.
+
+## asyncio는 어떨까요?
+
+`asyncio` 표준 라이브러리에서 이벤트 루프의 기존 구현은 평가될 프레임을 만들지만 메인 인터프리터와 상태를 공유합니다. (따라서 GIL도 공유합니다)
+
+PEP554가 병합된 후 파이썬 3.9에서는 하위 인터프리터 내에서 비동기를 구현하는 대체 이벤트 루프(아직은 아무도 하지 않지만)가 구현될 수도 있습니다.
+
+# 좋아! 이제 쓰면 되는건가?
+
+그렇지 않습니다.
+
+CPython은 오랫동안 하나의 인터프리터로 구현되었기 때문에 코드베이스의 많은 부분이 "인터프리터 상태" 대신 "런타임 상태"를 사용하므로 PEP554가 현재 상태 그대로 머지될 경우 많은 문제가 있을 수도 있습니다.
+
+예를 들어, 3.7 버전 이하의 GC는 런타임에 속합니다.
+
+PyCon 스프린트 동안 GC 상태를 인터프리터로 이동시켜 따라서 각 하위 인터프리터는 자신만의 GC를 갖게 했습니다. (원래 그래야 했던대로)
+
+또 다른 문제는 CPython 코드베이스와 많은 C 확장에 "전역" 변수들이 남아있다는 것입니다. 때문에 사람들이 적절한 병렬 코드를 작성하기 시작했을 때, 몇가지 문제를 만나게 될 지도 모릅니다.
+
+또 다른 문제는 파일 핸들이 프로세스에 속한다는 점입니다. 만약 한 인터프리터에서 쓰기를 위해 열려 있는 파일이 있으면 하위 인터프리터는 그 파일에 액세스 할 수 없게 됩니다. (CPython을 변경한다면 가능합니다)
+
+한마디로 말하지면 아직 해결해야 할 것들이 많이 있습니다.
+
+# 결론: GIL은 죽었습니까?
+
+싱글 스레드 애플리케이션에 대해 GIL은 여전히 존재할 것입니다. 즉, PEP554가 병합되더라도 싱글 스레드 코드가 병렬 처리되지는 않을 것입니다.
+
+파이썬 3.8에서 병렬 코드를 원한다면 CPU 바운드 동시성 문제가 있습니다. 이것은 티켓이 될 수도 있습니다!
+
+# 그래서 언제?
+
+Pickle v5와 멀티프로세싱을 위한 공유 메모리는 Python 3.8(2019년 10월)일 가능성이 높고 하위 인터프리터는 3.8과 3.9 사이가 될 것입니다.
+
+만약 예제들을 가지고 놀아보고 싶다면 필요한 코드를 갖춘 [커스텀 브랜치](https://github.com/tonybaloney/cpython/tree/subinterpreters)를 만들어 두었습니다.

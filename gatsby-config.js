@@ -1,83 +1,53 @@
-const path = require('path');
-
 module.exports = {
   siteMetadata: {
-    title: 'NovemberOscar',
-    description: "NovemberOscar's devlog",
-    siteUrl: 'https://seonghyeon.dev', // full path to blog - no ending slash
-  },
-  mapping: {
-    'MarkdownRemark.frontmatter.author': 'AuthorYaml',
+    title: `seonghyeon.dev`,
+    name: `seonghyeon.dev`,
+    siteUrl: `https://seonghyeon.dev`,
+    description: `Seonghyeon Kim's blog`,
+    hero: {
+      // heading: `<p style="font-size: 20px;color: #7A8085;">~/seonghyeon.dev</p><div style="display: inline-flex;">><input style="border: none; background: transparent;" placeholder="_"></input></div>`,
+      heading: `<a href="https://github.com/NovemberOscar"> <img id="github-heatmap" src="https://ghchart.rshah.org/NovemberOscar" alt="GitHub contribution heatmap"> </a>`,
+      maxWidth: 600,
+    },
+    social: [
+      {
+        name: `twitter`,
+        url: `https://twitter.com/NovemberOscar_`,
+      },
+      {
+        name: `github`,
+        url: `https://github.com/NovemberOscar`,
+      },
+      {
+        name: `linkedin`,
+        url: `https://www.linkedin.com/in/novemberoscar/`,
+      },
+    ],
   },
   plugins: [
-    'gatsby-plugin-sitemap',
-    'gatsby-plugin-sharp',
     {
-      resolve: 'gatsby-source-filesystem',
+      resolve: "@narative/gatsby-theme-novela",
       options: {
-        name: 'content',
-        path: path.join(__dirname, 'src', 'content'),
+        contentPosts: "content/posts",
+        contentAuthors: "content/authors",
+        basePath: "/",
+        authorsPage: false,
+        sources: {
+          local: true,
+          // contentful: true,
+        },
       },
     },
     {
-      resolve: 'gatsby-transformer-remark',
+      resolve: `gatsby-plugin-manifest`,
       options: {
-        plugins: [
-          {
-            resolve: 'gatsby-remark-responsive-iframe',
-            options: {
-              wrapperStyle: 'margin-bottom: 1rem',
-            },
-          },
-          'gatsby-remark-prismjs',
-          'gatsby-remark-copy-linked-files',
-          'gatsby-remark-smartypants',
-          'gatsby-remark-abbr',
-          {
-            resolve: 'gatsby-remark-images',
-            options: {
-              maxWidth: 1170,
-              quality: 90,
-            },
-          },
-        ],
-      },
-    },
-    'gatsby-transformer-json',
-    {
-      resolve: 'gatsby-plugin-canonical-urls',
-      options: {
-        siteUrl: 'https://seonghyon.dev',
-      },
-    },
-    'gatsby-plugin-emotion',
-    'gatsby-plugin-typescript',
-    'gatsby-transformer-sharp',
-    'gatsby-plugin-react-helmet',
-    'gatsby-transformer-yaml',
-    'gatsby-plugin-feed',
-    {
-      resolve: 'gatsby-plugin-postcss',
-      options: {
-        postCssPlugins: [require('postcss-color-function'), require('cssnano')()],
-      },
-    },
-    {
-      resolve: `gatsby-plugin-google-analytics`,
-      options: {
-        trackingId: 'UA-143368612-1',
-        // Puts tracking script in the head instead of the body
-        head: true,
-        // IP anonymization for GDPR compliance
-        anonymize: true,
-        // Disable analytics for users with `Do Not Track` enabled
-        respectDNT: true,
-        // Avoids sending pageview hits from custom paths
-        exclude: ['/preview/**'],
-        // Specifies what percentage of users should be tracked
-        sampleRate: 100,
-        // Determines how often site speed tracking beacons will be sent
-        siteSpeedSampleRate: 10,
+        name: `Novela by Narative`,
+        short_name: `Novela`,
+        start_url: `/`,
+        background_color: `#fff`,
+        theme_color: `#fff`,
+        display: `standalone`,
+        icon: `src/assets/favicon.png`,
       },
     },
   ],
