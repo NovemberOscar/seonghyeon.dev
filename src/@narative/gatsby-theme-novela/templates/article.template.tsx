@@ -45,7 +45,7 @@ const Article: Template = ({ pageContext, location }) => {
 
     const results = useStaticQuery(siteQuery);
     const name = results.allSite.edges[0].node.siteMetadata.name;
-    const siteURL = results.allSite.edges[0].node.siteMetadata.siteUrl;
+    const siteURL = "https://seonghyeon.dev"  //results.allSite.edges[0].node.siteMetadata.siteUrl;
 
     const { article, authors, mailchimp, next } = pageContext;
 
