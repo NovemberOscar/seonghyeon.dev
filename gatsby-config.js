@@ -25,6 +25,12 @@ module.exports = {
     ],
   },
   plugins: [
+    {
+      resolve: `gatsby-plugin-disqus`,
+      options: {
+        shortname: `seonghyeon-dev`
+      }
+    },
     'gatsby-plugin-sitemap',
     {
       resolve: "@narative/gatsby-theme-novela",
