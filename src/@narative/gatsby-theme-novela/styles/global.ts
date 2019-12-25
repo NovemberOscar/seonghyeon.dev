@@ -104,7 +104,7 @@ export const globalStyles = css`
   code {
     font-size: 90%;
     border-radius: 3px;
-    background: #eaeaea;
+    background: #c7c7c782;
     font-family: monospace;
     padding-right: 5px;
     padding-left: 5px;
