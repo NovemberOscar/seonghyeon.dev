@@ -146,7 +146,7 @@ const SEO: React.FC<HelmetProps> = ({
       meta={metaTags}
     >
       <link
-        href="https://fonts.googleapis.com/css?family=Nanum+Myeongjo:800,800i&display=swap&subset=korean"
+        href="https://fonts.googleapis.com/css?family=Nanum+Myeongjo:700,700i&display=swap&subset=korean"
         rel="stylesheet"
       />
       {children}
