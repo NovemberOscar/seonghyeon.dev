@@ -104,7 +104,7 @@ const Article: Template = ({ pageContext, location }) => {
                     <ArticleShare />
                 </MDXRenderer>
             </ArticleBody>
-            <div style={{ maxWidth: '680px', margin: '0 auto', marginBottom: '2rem' }}>
+            <div style={{ maxWidth: '680px', margin: '0 auto', marginBottom: '2rem', padding: '0 2rem' }}>
                 <Disqus config={disqusConfig} />
             </div>
             {mailchimp && article.subscription && <Subscription />}
