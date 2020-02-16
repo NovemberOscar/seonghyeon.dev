@@ -1,0 +1,129 @@
+---
+title: git hook과 Makefile을 사용해 파이썬 코드 깔끔하게 유지하기
+slug: keep-python-code-clean-with-git-hook-and-makefile
+author: Seonghyeon Kim
+date: 2020-02-16
+hero: ./images/title.jpg
+excerpt: git hook과 Makefile을 사용해서 파이썬 코드를 깔끔하게 유지해봅시다.
+---
+
+컨벤션에 맞지 않는 코드를 일일히 포매팅하는건 굉장히 귀찮고 때론 괴로운 작업입니다.
+자동화의 축복을 갈구하던 도중 [뱅크샐러드가 git hook과 makefile을 사용하고 있다고 전해듣고](https://github.com/Rainist/python/blob/master/%7B%7Bcookiecutter.project_slug%7D%7D/Makefile) 얼씨구나 찾아서 개조해서 써 보았습니다.
+
+# 사용할 커맨드라인 툴들
+- isort
+    - 자동으로 임포트 걸어놓고 정리되지 않은 임포트들을 깔끔하게 정렬하고 그룹화 해줍니다.
+- black
+    - PEP8 +alpha 격인 포맷을 사용해 자동으로 코드를 정리해 줍니다.
+- mypy
+    - PEP484를 따르는 타입 힌트를 사용해 타입을 무시하는 코드들을 심판하는 정적 타입 검사기입니다.
+- pylint
+    - 파이썬 코드를 린트해주는 툴입니다.
+
+# Makefile 구성
+
+제가 사용하는 Makefile은 4개의 커맨드로 구성되어있습니다.
+
+- check
+- format
+- lint
+- hook
+
+## `check`
+`make check` 명령은 isort와 black을 검사 모드로 사용해 포매팅을 확인하고 mypy로 타입체크를 수행합니다.
+
+파이참 코드 리밋에 맞추어 가로 길이 기본값 88자 대신 120자를 사용하고 mypy를 strict모드로 사용합니다. 
+
+이 명령어는 다음의 인용을 이루기 위한 한걸음입니다. 
+> 동적 언어에서는 금지된 것이 없어서 프로그래머 본인이 강철같은 불굴의 뚝심으로 정신을 바짝 차리고 숭고하고 순결한 코드 설계와 비타협적 코딩 원칙을 관철하고 심지어 여기에 충성하지 않는 모든 반동적인 동료들을 숙청해야만 알고리즘과 입출력을 완벽하게 분리할 수 있습니다.[^1]
+
+이 명령을 CI에서 실행시킨다면 깃 훅이 설치되지 않은 환경에서 푸쉬된 코드에 대해 방어할 수 있습니다.
+
+```makefile
+check:
+	isort --recursive --multi-line=3 --trailing-comma --force-grid-wrap=0 --use-parentheses --line-width=120 --check-only <package>
+	black -S --line-length=120 --check <package>
+	mypy <package> --show-error-codes --pretty  --strict
+```
+
+## `format`
+`make format`명령은 isort와 black을 사용해 포매팅을 수행합니다.
+
+```makefile
+format:
+	isort -rc -y --multi-line=3 --trailing-comma --force-grid-wrap=0 --use-parentheses --line-width=120 <package>
+	black -S --line-length=120 <package>
+```
+
+## `lint`
+`make lint` 명령은 pylint를 수행합니다. `make check`에 포함시킬수도 있지만 pylint가 일정 점수 이하로 내려갔을때 exit with non-zero가 아니라 
+단 한개의 린트 실패도 용납하지 않고 있어서 해당 기능이 릴리즈 될 때([PR은 머지되어 있는걸 확인](https://github.com/PyCQA/pylint/pull/3260)) 까지 이 명령으로 유배시켜놓을 예정입니다.
+
+```makefile
+lint:
+	pylint <package> || exit 0
+```
+
+## `hook`
+`make hook` 명령은 git hook을 설치할때 사용합니다. 훅 설치용 쉘스크립트와 훅에 권한을 부여하고, 설치용 쉘 스크립트를 실행해 깃 훅을 설치합니다.
+
+```makefile
+hook:
+	chmod 744 ./bin/install_hooks.sh
+	chmod 744 ./bin/pre-push
+	./bin/install_hooks.sh
+```
+
+# git hook 구성
+
+`make hook` 명령에서 사용되는 git hook의 구성입니다. pre-commit은 너무 귀찮기 때문에 약간 타협해 pre-push만 사용합니다. 
+저도 맥만 사용하고 개발팀에서도 맥만 사용하기 때문에 bash 대신 macOS 기본 쉘인 zsh를 사용합니다.
+
+## `install_hooks.sh`
+
+이 쉘 스크립트는 깃 레포의 루트를 알아내어 그 기준으로 깃 훅 폴더에 아래에서 구성할 깃 훅 스크립트의 심볼릭 링크를 구성합니다.
+
+```
+#!/usr/bin/env zsh
+PROJECT_DIR=$(git rev-parse --show-toplevel)
+
+ln -sf $PROJECT_DIR/bin/pre-push $PROJECT_DIR/.git/hooks/pre-push
+```
+
+## `pre-push`
+git push를 사용할때 자동으로 실행될 스크립트 입니다. 기본적으로 `make check`와 동일한 스텝을 사용합니다.
+
+출력이 그닥 필요 없고 각 스텝이 통과하는지만 알수 있으면 되기 떄문에 각 스텝 끝에 `> /dev/null 2>&1` 를 붙여서 출력을 안보이게 처리했습니다.
+
+추가로 순전히 개인적인 사리사욕으로 Pass/Fail 출력에 컬러가 들어가면 예쁠거란 생각이 들어 echo에 설정을 추가해서 성공시에는 초록색, 실패시에는 빨간색이 출력됩니다.
+
+```shell script
+  
+#!/usr/bin/env zsh
+
+isort --recursive --multi-line=3 --trailing-comma --force-grid-wrap=0 --use-parentheses --line-width=120 --check-only <package> > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "-e \e[31m [\!] isort failed! Run 'make format'"
+  exit 1
+fi
+echo -e "\e[32m [+] isort success!"
+
+black -S --line-length=120 --check <package> > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo -e "\e[31m [\!] failed! Run 'make format'"
+  exit 1
+fi
+echo -e "\e[32m [+] black success!"
+
+mypy <package> --show-error-codes --pretty  --strict > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo -e "\e[31m [!] mypy failed! Please fix code before push"
+  exit 1
+fi
+echo -e "\e[32m [+] mypy success!"
+echo -e "\e[0m"
+
+exit 0
+```
+
+[^1]: https://xtendo.org/haskell/ko/why
