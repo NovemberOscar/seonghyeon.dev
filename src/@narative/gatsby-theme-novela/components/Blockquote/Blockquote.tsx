@@ -7,14 +7,21 @@ const Blockquote = styled.blockquote`
   color: ${p => p.theme.colors.articleText};
   font-family: ${p => p.theme.fonts.serif};
   font-style: italic;
+  border-left: 3px solid;
+  color: #c7c7c782;
+  word-break: keep-all;
+  padding: 10px 0px 12px 25px;
 
   ${mediaqueries.tablet`
     margin: 10px auto 35px;
+    padding: 0px 0px 0px 0px;
+    border-left: 0px;
   `};
 
   & > p {
     font-family: ${p => p.theme.fonts.serif};
     max-width: 880px !important;
+    padding-top: 5px;
     padding-right: 100px;
     padding-bottom: 0;
     width: 100%;
