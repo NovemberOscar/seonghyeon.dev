@@ -105,7 +105,7 @@ export const globalStyles = css`
     font-size: 80%;
     border-radius: 3px;
     border: 1px solid;
-    border-color: inherit;
+    border-color: c7c7c782;
     // background: #c7c7c782;
     font-family: monospace;
     padding-right: 5px;
@@ -113,6 +113,7 @@ export const globalStyles = css`
     padding-top: 1px;
     padding-bottom: 1px;
     font-weight: normal;
+    font-style: normal;
   }
 
   fieldset,
