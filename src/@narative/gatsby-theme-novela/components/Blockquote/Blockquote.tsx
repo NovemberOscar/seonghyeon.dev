@@ -8,7 +8,7 @@ const Blockquote = styled.blockquote`
   font-family: ${p => p.theme.fonts.serif};
   font-style: italic;
   border-left: 3px solid;
-  color: #c7c7c782;
+  border-color: #c7c7c782;
   word-break: keep-all;
   padding: 10px 0px 12px 25px;
 
@@ -39,7 +39,24 @@ const Blockquote = styled.blockquote`
       font-size: 25px;
       padding: 0 20px 0 40px;
     `};
+  };
+
+  & > cite:before {
+    content: "— "
   }
+
+  & > cite {
+    display: block;
+    color: black;
+    text-align: right;
+    font-family: ${p => p.theme.fonts.serif};
+    max-width: 880px !important;
+    padding-top: 20px;
+    padding-right: 100px;
+    padding-bottom: 0;
+    width: 100%;
+    margin: 0 auto;
+  };
 `;
 
 export default Blockquote;
