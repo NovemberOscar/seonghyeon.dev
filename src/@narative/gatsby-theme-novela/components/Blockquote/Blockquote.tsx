@@ -47,7 +47,6 @@ const Blockquote = styled.blockquote`
 
   & > cite {
     display: block;
-    color: black;
     text-align: right;
     font-family: ${p => p.theme.fonts.serif};
     max-width: 880px !important;
