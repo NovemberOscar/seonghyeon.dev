@@ -1,12 +1,12 @@
 - name: Seonghyeon Kim
   bio: |
-    Rookie BE developer @ mymusictaste
+    Mostly Harmless
   avatar: ./avatars/seonghyeon.jpg
   featured: true
   social:
     - name: github
       url: https://github.com/NovemberOscar
     - name: twitter
-      url: https://twitter.com/NovemberOscar
+      url: https://twitter.com/_xtty_
     - name: linkedin
       url: https://www.linkedin.com/in/novemberoscar/
